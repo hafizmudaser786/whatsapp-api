@@ -1,0 +1,178 @@
+<style>
+    #image-container {
+        margin-top: 20px;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+<div style="text-align: center;" id="loader">
+
+    <div>
+        Please wait...
+    </div>
+    <div class="spinner-grow text-muted"></div>
+    <div class="spinner-grow text-primary"></div>
+    <div class="spinner-grow text-success"></div>
+    <div class="spinner-grow text-info"></div>
+    <div class="spinner-grow text-warning"></div>
+    <div class="spinner-grow text-danger"></div>
+    <div class="spinner-grow text-secondary"></div>
+    <div class="spinner-grow text-dark"></div>
+    <div class="spinner-grow text-light"></div>
+</div>
+<div class="row">
+    <div class="col-sm-6">
+        <div id="connected">
+            <div>
+                Dear <%=session.customerName %> Your whatsapp is connected with us. Your current Balance is
+                    <%=session.credit %>
+            </div>
+
+
+            <div>
+                Credit Per Message : <%=creditPerMessage %>
+            </div>
+
+        </div>
+
+    </div>
+    <div class="col-sm-6">
+        <button style="margin-left: 20px;" type="button" onclick="startSession()"
+            class="btn btn-primary connection-process">
+            Start Session</button>
+        <button style="margin-left: 20px;" type="button" onclick="generateQr()"
+            class="btn btn-primary connection-process">
+            Generate QR</button>
+        <button style="margin-left: 20px;" type="button" onclick="getQrImage()"
+            class="btn btn-primary connection-process">
+            Get QR Image</button>
+
+        <button style="margin-left: 20px;" type="button" onclick="terminateSession()" class="btn btn-primary ">
+            Terminate Session</button>
+        <div id="image-container" class="connection-process"></div>
+
+
+    </div>
+</div>
+
+
+<script>
+    const key = '<%=key %>';
+    let isConnected = false;
+    function setIsConnected() {
+        $('#connected').show();
+        isConnected = true;
+        $('#loader').hide();
+        $('.connection-process').hide();
+    }
+    function setIsNoConnected() {
+        $('#connected').hide();
+        $('.connection-process').show();
+        isConnected = false;
+    }
+    function checkStatus() {
+        $('#loader').show();
+        $.ajax({
+            url: `/session/status/${key}`,
+            cache: false,
+            success: function (res) {
+                if (res.success) {
+                    if (res.message === 'session_connected') {
+                        setIsConnected();
+                        return;
+                    }
+                }
+                console.log(res)
+                $('#loader').hide();
+            }
+        });
+    }
+
+    function generateQr() {
+        $('#loader').show();
+        $.ajax({
+            url: `/session/qr/${key}`,
+            cache: false,
+            success: function (res) {
+
+                console.log(res)
+                $('#loader').hide();
+            }
+        });
+    }
+
+    function getQrImage() {
+        $('#loader').show();
+        $.ajax({
+            url: `/session/qr/${key}/image`,
+            cache: false,
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function (res) {
+                const url = URL.createObjectURL(res); // Create a URL for the image blob
+                $('#image-container').html('<img src="' + url + '" alt="Loaded Image">'); // Insert the image into the DOM
+                $('#loader').hide();
+
+            },
+            error: function (err) {
+                $('#loader').hide();
+            }
+        });
+    }
+
+
+    function startSession() {
+        $('#loader').show();
+        $.ajax({
+            url: `/session/start/${key}`,
+            cache: false,
+            success: function (res) {
+
+                if (!res.success) {
+                    if (res.error === 'Session already exists') {
+                        setIsConnected();
+                        return;
+                    }
+                }
+                $('#loader').hide();
+            }
+        });
+    }
+
+    function terminateSession() {
+        $.ajax({
+            url: `/session/terminate/${key}`,
+            cache: false,
+            success: function (res) {
+
+                if (res.success) {
+                    setIsNoConnected();
+                }
+            }
+        });
+    }
+
+
+    $(function () {
+
+
+        $('#loader').hide();
+        $('#connected').hide();
+
+        var intervalId = window.setInterval(function () {
+            if (!isConnected) {
+                checkStatus();
+
+            }
+        }, 10000);
+
+        //clearInterval(intervalId) 
+
+
+
+    });
+</script>

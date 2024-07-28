@@ -12,6 +12,8 @@ const chatController = require('./controllers/chatController')
 const groupChatController = require('./controllers/groupChatController')
 const messageController = require('./controllers/messageController')
 const contactController = require('./controllers/contactController')
+const managementController = require('./controllers/managementController')
+
 
 /**
  * ================
@@ -21,6 +23,11 @@ const contactController = require('./controllers/contactController')
 
 // API endpoint to check if server is alive
 routes.get('/ping', healthController.ping)
+
+routes.post('/registerKey', managementController.registerKey);
+routes.get('/getkey/:key', managementController.getSessionsByKey);
+routes.get('/clientView', managementController.clientView);
+
 // API basic callback
 if (enableLocalCallbackExample) {
   routes.post('/localCallbackExample', [middleware.apikey, middleware.rateLimiter], healthController.localCallbackExample)

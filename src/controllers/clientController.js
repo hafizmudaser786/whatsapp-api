@@ -1,6 +1,8 @@
 const { MessageMedia, Location, Buttons, List, Poll } = require('whatsapp-web.js')
 const { sessions } = require('../sessions')
 const { sendErrorResponse } = require('../utils')
+const { sessionGeyByKey, getSessionsManagement } = require('../database');
+const { creditPerMessage } = require('../config')
 
 /**
  * Send a message to a chat using the WhatsApp API
@@ -120,6 +122,13 @@ const sendMessage = async (req, res) => {
       default:
         return sendErrorResponse(res, 404, 'contentType invalid, must be string, MessageMedia, MessageMediaFromURL, Location, Buttons, List, Contact or Poll')
     }
+    const session = sessionGeyByKey(req.params.sessionId);
+    if (session) {
+      session.credit = session.credit - parseInt(creditPerMessage || 1);
+      const sessions = getSessionsManagement();
+      sessions.update(session);
+    }
+
 
     res.json({ success: true, message: messageOut })
   } catch (error) {

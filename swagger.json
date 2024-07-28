@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "WhatsApp API",
+    "title": "WhatsApp1 API",
     "description": "API Wrapper for WhatsAppWebJS",
     "version": "1.0.0"
   },
@@ -30,6 +30,90 @@
     }
   ],
   "paths": {
+    "/registerKey": {
+      "post": {
+        "tags": [
+          "Management"
+        ],
+        "description": "",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "key": {
+                    "type": "string",
+                    "description": "The key which contains customer uniuqe Id"
+                  },
+                  "credit": {
+                    "type": "number",
+                    "description": "The amout for initial balance"
+                  },
+                  "customerName": {
+                    "type": "string",
+                    "description": "Name of customer"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "customer details"
+                  }
+                  
+                }
+              },
+              "examples": {
+                "string": {
+                  "value": {
+                    "key": "ksdfTi67_sd5",
+                    "credit": 1000,
+                    "customerName": "customer name",
+                    "description": "customer details"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/getkey/{key}": {
+      "get": {
+        "tags": [
+          "Management"
+        ],
+        "description": "Get registerd key.",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "registed key",
+            "example": "ksdfTi67_sd5"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Data of custmer.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ping": {
       "get": {
         "tags": [
@@ -7499,6 +7583,22 @@
   },
   "components": {
     "schemas": {
+      "Response": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "string",
+            "example": "required data"
+          }
+        },
+        "xml": {
+          "name": "StartSessionResponse"
+        }
+      },
       "StartSessionResponse": {
         "type": "object",
         "properties": {
